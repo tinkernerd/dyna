@@ -7,6 +7,8 @@
   <img src="https://img.shields.io/badge/No_Database-Required-lightgrey?style=for-the-badge" />
 </p>
 
+### Stock photos pulled from my [Unsplash](https://unsplash.com/@lilalbie)
+
 > A self updating photo portfolio that requires no additional coding, no CMS, and no manual page creation.  
 > Drop photos into folders and the site builds albums, sorts images, and extracts EXIF data automatically.
 
