@@ -10,6 +10,9 @@
   <div class="layout">
     <aside class="sidebar">
       <h1 class="logo">Portfolio</h1>
+
+      <button id="about-link" class="about-link">About</button>
+
       <p class="subtitle">Albums</p>
       <nav id="album-list" class="album-list"></nav>
     </aside>
@@ -21,6 +24,10 @@
           <p id="album-count" class="muted"></p>
         </div>
       </header>
+
+      <section id="about-section" class="about hidden">
+        <div id="about-body" class="about-body"></div>
+      </section>
 
       <section id="photo-grid" class="photo-grid"></section>
     </main>
@@ -34,6 +41,8 @@
     </div>
   </div>
 
+  <!-- markdown parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/main.js"></script>
 </body>
 </html>
