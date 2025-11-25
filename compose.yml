@@ -13,5 +13,5 @@ services:
       - ./data:/data
     
     environment:
-      STOCK_IMAGES: "yes"
+      STOCK_IMAGES: "yes" #change to no to prevent the stock images downloaded.
 
