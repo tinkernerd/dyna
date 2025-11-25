@@ -1,27 +1,24 @@
-# Use Node 18 LTS on Debian
 FROM node:18-bullseye
 
-# Create app directory
 WORKDIR /usr/src/app
 
-# Install dependencies (from server/package.json)
+# Install deps
 COPY server/package*.json ./
 RUN npm install --production
 
-# Copy the rest of the server code
+# Copy app
 COPY server/. .
 
-# Environment defaults inside the container
-ENV DATA_ROOT=/data
-ENV PHOTO_ROOT=/data/photos
-ENV THUMB_ROOT=/data/thumbs
-ENV ABOUT_FILE=/data/about.md
+# Install tools for seeding (wget + unzip)
+RUN apt-get update && apt-get install -y wget unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Make sure the data directories exist (in case the volume is empty)
-RUN mkdir -p /data/photos /data/thumbs
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Expose app port
 EXPOSE 3000
 
-# Start the server via npm
+# Use entrypoint; CMD is still "npm start"
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["npm", "start"]
