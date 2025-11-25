@@ -1,0 +1,52 @@
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Local environment ---
+.env
+.env.local
+.env.*.local
+
+# --- macOS system files ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Thumbnail cache (generated at runtime) ---
+data/thumbs/
+
+# --- Do NOT ignore photos or about.md ---
+# (Users will store their data here)
+# data/photos/
+# data/about.md
+
+# --- Logs ---
+logs/
+*.log
+*.log.*
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# --- Docker ---
+*.pid
+docker-compose.override.yml  # if used for local overrides
+docker-data/                 # if you ever store docker bind-mounts here
+
+# --- Build output (if you ever add a build step) ---
+dist/
+build/
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- OS specific ---
+Thumbs.db
+ehthumbs.db
+Icon?

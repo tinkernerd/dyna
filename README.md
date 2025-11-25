@@ -1,4 +1,5 @@
 # Dynamic Photo Portfolio
+
 <p align="left">
   <img src="https://img.shields.io/badge/Node.js-18%2B-green?style=for-the-badge" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" />
@@ -86,3 +87,5 @@ photos/
 - Favcon
 - ~~Descriptions~~
 - ~~Location tagging~~
+
+Dockerization work done by [@tinkernerd](https://github.com/tinkernerd). Site Created by [@bug-philosopher](https://github.com/bug-philosopher)

@@ -7,13 +7,19 @@ const sharp = require("sharp");
 
 const app = express();
 
-const PHOTO_ROOT = path.join(__dirname, "photos");
-const ABOUT_PATH = path.join(__dirname, "about.md");
-const THUMB_ROOT = path.join(__dirname, "thumbs");
+// Fixed locations inside the container
+const DATA_ROOT = "/data";
+const PHOTO_ROOT = path.join(DATA_ROOT, "photos");
+const THUMB_ROOT = path.join(DATA_ROOT, "thumbs");
+const ABOUT_FILE = path.join(DATA_ROOT, "about.md");
 
-// make sure thumbs folder exists
-if (!fs.existsSync(THUMB_ROOT)) {
-  fs.mkdirSync(THUMB_ROOT, { recursive: true });
+// Ensure folders exist at runtime
+for (const dir of [DATA_ROOT, PHOTO_ROOT, THUMB_ROOT]) {
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+  } catch (err) {
+    console.error(`Failed to create directory ${dir}:`, err);
+  }
 }
 
 // serve frontend and assets
@@ -24,7 +30,7 @@ app.use("/thumbs", express.static(THUMB_ROOT));
 // list album folders
 async function listAlbumFolders() {
   const entries = await fs.promises.readdir(PHOTO_ROOT, { withFileTypes: true });
-  return entries.filter(e => e.isDirectory()).map(e => e.name);
+  return entries.filter((e) => e.isDirectory()).map((e) => e.name);
 }
 
 // sidecar text reader (per photo)
@@ -66,7 +72,7 @@ async function getOrCreateThumbnail(albumName, filename) {
   try {
     const [srcStat, destStat] = await Promise.all([
       fs.promises.stat(src),
-      fs.promises.stat(dest)
+      fs.promises.stat(dest),
     ]);
 
     if (srcStat.mtimeMs > destStat.mtimeMs) {
@@ -78,12 +84,14 @@ async function getOrCreateThumbnail(albumName, filename) {
 
   if (needNewThumb) {
     await sharp(src)
-      .resize({ width: 900 })      // thumbnail width
-      .jpeg({ quality: 65 })       // compressed preview
+      .resize({ width: 900 }) // thumbnail width
+      .jpeg({ quality: 65 }) // compressed preview
       .toFile(dest);
   }
 
-  return `/thumbs/${encodeURIComponent(albumName)}/${encodeURIComponent(filename)}`;
+  return `/thumbs/${encodeURIComponent(albumName)}/${encodeURIComponent(
+    filename
+  )}`;
 }
 
 // list images inside album
@@ -92,28 +100,29 @@ async function listImagesInAlbum(albumName) {
   const entries = await fs.promises.readdir(albumPath, { withFileTypes: true });
 
   const imageFiles = entries
-    .filter(e => e.isFile())
-    .map(e => e.name)
-    .filter(name => {
+    .filter((e) => e.isFile())
+    .map((e) => e.name)
+    .filter((name) => {
       const ext = path.extname(name).toLowerCase();
       return [".jpg", ".jpeg", ".png", ".webp"].includes(ext);
     });
 
-  const photoPromises = imageFiles.map(async filename => {
+  const photoPromises = imageFiles.map(async (filename) => {
     const fullPath = path.join(albumPath, filename);
     const stats = await fs.promises.stat(fullPath);
 
     let exif = {};
     try {
-      exif = await exifr.parse(fullPath, [
-        "Model",
-        "Make",
-        "LensModel",
-        "FNumber",
-        "ExposureTime",
-        "ISO",
-        "FocalLength"
-      ]) || {};
+      exif =
+        (await exifr.parse(fullPath, [
+          "Model",
+          "Make",
+          "LensModel",
+          "FNumber",
+          "ExposureTime",
+          "ISO",
+          "FocalLength",
+        ])) || {};
     } catch (err) {
       console.warn("EXIF read error:", err.message);
     }
@@ -130,11 +139,13 @@ async function listImagesInAlbum(albumName) {
 
     return {
       filename,
-      url: `/photos/${encodeURIComponent(albumName)}/${encodeURIComponent(filename)}`, // full res
-      thumbUrl,                                                                       // preview
+      url: `/photos/${encodeURIComponent(albumName)}/${encodeURIComponent(
+        filename
+      )}`, // full res
+      thumbUrl, // preview
       createdAt: stats.birthtimeMs || stats.mtimeMs,
       meta: { camera, lens, aperture, shutter, iso, focalLength },
-      extra
+      extra,
     };
   });
 
@@ -151,14 +162,14 @@ app.get("/api/albums", async (req, res) => {
     const folders = await listAlbumFolders();
 
     const albums = await Promise.all(
-      folders.map(async name => {
+      folders.map(async (name) => {
         const photos = await listImagesInAlbum(name);
         const cover = photos[0] ? photos[0].thumbUrl || photos[0].url : null;
         return {
           name,
           albumId: name,
           cover,
-          photoCount: photos.length
+          photoCount: photos.length,
         };
       })
     );
@@ -193,10 +204,10 @@ app.get("/api/albums/:albumId", async (req, res) => {
 app.get("/api/about", async (req, res) => {
   try {
     let markdown =
-      "# About\n\nCreate an `about.md` file next to `server.js` to customize this page.";
+      "# About\n\nCreate an `about.md` file in the `data` folder (mounted as `/data/about.md`) to customize this page.";
 
     try {
-      const content = await fs.promises.readFile(ABOUT_PATH, "utf8");
+      const content = await fs.promises.readFile(ABOUT_FILE, "utf8");
       if (content.trim().length > 0) {
         markdown = content;
       }
