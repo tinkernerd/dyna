@@ -11,4 +11,7 @@ services:
 
     volumes:
       - ./data:/data
+    
+    environment:
+      STOCK_IMAGES: "yes"
 
