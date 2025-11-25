@@ -1,48 +1,36 @@
 #!/bin/sh
 set -e
 
-PHOTOS_DIR=${PHOTOS_DIR:-/data/photos}
-STOCK_PHOTOS_URL=${STOCK_PHOTOS_URL:-""}
+PHOTOS_DIR="/data/photos"
+JAPAN_DIR="$PHOTOS_DIR/Japan"
+NATURE_DIR="$PHOTOS_DIR/Nature"
 
 echo "[entrypoint] Using photos dir: $PHOTOS_DIR"
 
-# Ensure base dir exists
+# Make sure photos dir exists
 mkdir -p "$PHOTOS_DIR"
 
-# Check if directory is empty
+# If photos dir is empty, seed stock photos
 if [ -z "$(ls -A "$PHOTOS_DIR" 2>/dev/null)" ]; then
-  echo "[entrypoint] Photos directory is empty."
+  echo "[entrypoint] Photos directory is empty, seeding demo albums..."
 
-  if [ -n "$STOCK_PHOTOS_URL" ]; then
-    echo "[entrypoint] Seeding stock photos from: $STOCK_PHOTOS_URL"
+  mkdir -p "$JAPAN_DIR" "$NATURE_DIR"
 
-    tmpdir=$(mktemp -d)
-    cd "$tmpdir"
+  echo "[entrypoint] Downloading Japan demo photos..."
+  wget -q -O "$JAPAN_DIR/sample_photo1.jpeg" "https://raw.githubusercontent.com/tinkernerd/dyna/main/data/photos/Japan/sample_photo1.jpeg"
+  wget -q -O "$JAPAN_DIR/sample_photo2.jpg"   "https://raw.githubusercontent.com/tinkernerd/dyna/main/data/photos/Japan/sample_photo2.jpg"
+  wget -q -O "$JAPAN_DIR/sample_photo3.jpg"   "https://raw.githubusercontent.com/tinkernerd/dyna/main/data/photos/Japan/sample_photo3.jpg"
+  wget -q -O "$JAPAN_DIR/sample_photo4.jpg"   "https://raw.githubusercontent.com/tinkernerd/dyna/main/data/photos/Japan/sample_photo4.jpg"
+  wget -q -O "$JAPAN_DIR/sample_photo1.md"    "https://raw.githubusercontent.com/tinkernerd/dyna/main/data/photos/Japan/sample_photo1.md"
 
-    # Download archive (zip or tar) – you choose the format/URL
-    wget -O photos.zip "$STOCK_PHOTOS_URL"
+  echo "[entrypoint] Downloading Nature demo photos..."
+  wget -q -O "$NATURE_DIR/sample_photo1.jpg"  "https://raw.githubusercontent.com/tinkernerd/dyna/main/data/photos/Nature/sample_photo1.jpg"
+  wget -q -O "$NATURE_DIR/sample_photo2.jpg"  "https://raw.githubusercontent.com/tinkernerd/dyna/main/data/photos/Nature/sample_photo2.jpg"
+  wget -q -O "$NATURE_DIR/sample_photo3.jpg"  "https://raw.githubusercontent.com/tinkernerd/dyna/main/data/photos/Nature/sample_photo3.jpg"
 
-    # Adjust this depending on what you download
-    unzip -q photos.zip
-
-    # Try to move everything under the first folder into PHOTOS_DIR
-    first_subdir=$(find . -mindepth 1 -maxdepth 1 -type d | head -n 1)
-
-    if [ -n "$first_subdir" ]; then
-      mv "$first_subdir"/* "$PHOTOS_DIR"/
-    else
-      mv ./* "$PHOTOS_DIR"/
-    fi
-
-    cd /
-    rm -rf "$tmpdir"
-
-    echo "[entrypoint] Stock photos seeded into $PHOTOS_DIR"
-  else
-    echo "[entrypoint] STOCK_PHOTOS_URL not set; skipping stock photo seed."
-  fi
+  echo "[entrypoint] Demo photos seeded into $PHOTOS_DIR"
 else
-  echo "[entrypoint] Photos directory is not empty; skipping stock photo seed."
+  echo "[entrypoint] Photos directory is not empty, skipping demo seed."
 fi
 
 echo "[entrypoint] Starting app: $@"
