@@ -12,7 +12,3 @@ services:
     volumes:
       - ./data:/data
 
-    environment:
-      # Optional: only needed if you want auto-seeded demo photos
-      STOCK_PHOTOS_URL: "https://github.com/OWNER/REPO/archive/refs/heads/main.zip"
-      # or wherever your demo archive lives
