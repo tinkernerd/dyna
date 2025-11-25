@@ -1,0 +1,11 @@
+services:
+  dyna:
+    image: nicholasstull/dyna:latest
+    container_name: dyna
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./data:/data
